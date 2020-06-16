@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web.UI;
 using System.Windows;
 
 namespace ModAssistant
@@ -22,6 +23,7 @@ namespace ModAssistant
         public static bool SelectInstalledMods;
         public static bool ReinstallInstalledMods;
         public static bool CloseWindowOnFinish;
+        public static bool EnableOneClickPlaylist;
         public static string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         public static List<string> SavedMods = ModAssistant.Properties.Settings.Default.SavedMods.Split(',').ToList();
         public static MainWindow window;
@@ -67,6 +69,7 @@ namespace ModAssistant
             SelectInstalledMods = ModAssistant.Properties.Settings.Default.SelectInstalled;
             ReinstallInstalledMods = ModAssistant.Properties.Settings.Default.ReinstallInstalled;
             CloseWindowOnFinish = ModAssistant.Properties.Settings.Default.CloseWindowOnFinish;
+            EnableOneClickPlaylist = ModAssistant.Properties.Settings.Default.EnableOneClickPlaylist;
 
             await ArgumentHandler(e.Args);
             await Init();

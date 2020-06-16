@@ -28,6 +28,7 @@ namespace ModAssistant.Pages
         public bool ModelSaberProtocolHandlerEnabled { get; set; }
         public bool BeatSaverProtocolHandlerEnabled { get; set; }
         public bool PlaylistsProtocolHandlerEnabled { get; set; }
+        public bool EnableOneClickPlaylist { get; set; }
         public bool CloseWindowOnFinish { get; set; }
         public string LogURL { get; private set; }
 
@@ -41,6 +42,7 @@ namespace ModAssistant.Pages
             SelectInstalledMods = App.SelectInstalledMods;
             ReinstallInstalledMods = App.ReinstallInstalledMods;
             CloseWindowOnFinish = App.CloseWindowOnFinish;
+            EnableOneClickPlaylist = App.EnableOneClickPlaylist;
             if (!CheckInstalledMods)
             {
                 SelectInstalled.IsEnabled = false;

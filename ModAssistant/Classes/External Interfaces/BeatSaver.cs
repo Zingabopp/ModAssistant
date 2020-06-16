@@ -4,10 +4,15 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
+using BeatSaberPlaylistsLib;
+using BeatSaberPlaylistsLib.Blist;
+using BeatSaberPlaylistsLib.Legacy;
+using BeatSaberPlaylistsLib.Types;
 using static ModAssistant.Http;
 
 namespace ModAssistant.API
@@ -56,6 +61,7 @@ namespace ModAssistant.API
                     map.response = beatsaver;
                     map.Name = await InstallMap(beatsaver.map, showNotification);
                     map.Success = true;
+
                 }
             }
             catch (Exception e)
@@ -113,6 +119,18 @@ namespace ModAssistant.API
                 return null;
             }
         }
+        protected static readonly string PlaylistDirectory = Path.Combine(Utils.BeatSaberPath, "Playlists");
+        protected static Lazy<PlaylistManager> PlaylistManager =
+            new Lazy<PlaylistManager>(() => new PlaylistManager(PlaylistDirectory, new LegacyPlaylistHandler(), new BlistPlaylistHandler()));
+        public const string OneClickPlaylistName = "OneClick";
+
+        protected static IPlaylist CreateOneClickPlaylist()
+        {
+            IPlaylist playlist = new LegacyPlaylist(OneClickPlaylistName, "OneClick Songs", "Mod Assistant");
+            playlist.Description = "Songs installed using Mod Assistant's OneClick installer.";
+            playlist.SetCover(Assembly.GetExecutingAssembly().GetManifestResourceStream("ModAssistant.Resources.PlaylistCover.png"));
+            return playlist;
+        }
 
         public static async Task<string> InstallMap(BeatSaverApiResponseMap Map, bool showNotification = true)
         {
@@ -120,7 +138,6 @@ namespace ModAssistant.API
             string mapName = string.Concat(($"{Map.key} ({Map.metadata.songName} - {Map.metadata.levelAuthorName})")
                              .Split(ModAssistant.Utils.Constants.IllegalCharacters));
             string directory = Path.Combine(Utils.BeatSaberPath, CustomSongsFolder, mapName);
-
 #pragma warning disable CS0162 // Unreachable code detected
             if (BypassDownloadCounter)
             {
@@ -161,6 +178,23 @@ namespace ModAssistant.API
                             }
                         }
                     }
+                    if (App.EnableOneClickPlaylist)
+                    {
+                        try
+                        {
+                            PlaylistManager playlistManager = PlaylistManager.Value;
+                            IPlaylist playlist = playlistManager.GetOrAdd(OneClickPlaylistName, CreateOneClickPlaylist);
+                            IPlaylistSong song = playlist.Add(Map.hash, Map.name, Map.key, Map.uploader?.username);
+                            song.DateAdded = DateTime.Now;
+                            playlist.Sort();
+                            playlist.RaisePlaylistChanged();
+                            playlistManager.StorePlaylist(playlist);
+                        }
+                        catch (Exception ex)
+                        {
+                            ModAssistant.Utils.Log($"Failed to update OneClick playlist: {ex}");
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -168,7 +202,14 @@ namespace ModAssistant.API
                     ModAssistant.Utils.Log($"Failed extracting BeatSaver map: {zip} | Error: {e} \n| Content: {string.Join("\n", File.ReadAllLines(zip))}", "ERROR");
                     throw new Exception("File extraction failed.");
                 }
-                File.Delete(zip);
+                try
+                {
+                    File.Delete(zip);
+                }
+                catch (Exception ex)
+                {
+                    ModAssistant.Utils.Log($"Failed to delete temporary zip file '{zip}': {ex.Message}");
+                }
             }
             else
             {
@@ -262,7 +303,7 @@ namespace ModAssistant.API
         public class BeatSaverApiResponse
         {
             public HttpStatusCode statusCode { get; set; }
-            public BeatSaverRatelimit ratelimit { get; set;}
+            public BeatSaverRatelimit ratelimit { get; set; }
             public BeatSaverApiResponseMap map { get; set; }
         }
 

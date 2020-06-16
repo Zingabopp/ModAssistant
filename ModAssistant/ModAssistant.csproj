@@ -304,5 +304,19 @@
   <ItemGroup>
     <EmbeddedResource Include="Themes\BSMG\Sidebar.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Libs\BeatSaberPlaylistsLib\BeatSaberPlaylistsLib\BeatSaberPlaylistsLib.csproj">
+      <Project>{2fc7277c-b7ed-41fb-b540-9b15ab205ff3}</Project>
+      <Name>BeatSaberPlaylistsLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\PlaylistCover.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
