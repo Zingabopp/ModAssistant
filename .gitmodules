@@ -1,0 +1,3 @@
+[submodule "ModAssistant/Libs/BeatSaberPlaylistsLib"]
+	path = ModAssistant/Libs/BeatSaberPlaylistsLib
+	url = https://github.com/Zingabopp/BeatSaberPlaylistsLib
