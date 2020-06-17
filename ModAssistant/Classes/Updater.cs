@@ -42,7 +42,8 @@ namespace ModAssistant
                 Utils.SendNotify((string)Application.Current.FindResource("Updater:CheckFailed"));
             }
 
-            if (NeedsUpdate) await StartUpdate();
+            if (NeedsUpdate)
+                Utils.SendNotify("A newer version of ModAssistant is available.");
         }
 
         public static async Task StartUpdate()
